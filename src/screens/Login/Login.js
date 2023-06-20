@@ -11,8 +11,10 @@ import {usernameValidator} from "../../utils/usernameValidator";
 import Toast from '../../components/Toast'
 import {styles} from "./style";
 import {loginUser} from "../../api/auth-api";
+import {useNavigation, useRoute} from '@react-navigation/native';
 
-export default function Login({navigation}) {
+export default function Login() {
+    const navigation = useNavigation()
     const [username, setUsername] = useState({value: '', error: ''})
     const [password, setPassword] = useState({value: '', error: ''})
     const [loading, setLoading] = useState()
@@ -41,8 +43,7 @@ export default function Login({navigation}) {
                 setError(response.error)
             }
         } else {
-            console.log(response.uid)
-            navigation.navigate('SprayCard')
+            navigation.navigate('SprayCard', {uid: response.uid,})
         }
 
         setLoading(false)

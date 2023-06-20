@@ -8200,10 +8200,10 @@
   "resolved" "https://registry.npmjs.org/react-native-reanimated-table/-/react-native-reanimated-table-0.0.2.tgz"
   "version" "0.0.2"
 
-"react-native-safe-area-context@*", "react-native-safe-area-context@^4.5.3", "react-native-safe-area-context@>= 3.0.0":
-  "integrity" "sha512-ihYeGDEBSkYH+1aWnadNhVtclhppVgd/c0tm4mj0+HV11FoiWJ8N6ocnnZnRLvM5Fxc+hUqxR9bm5AXU3rXiyA=="
-  "resolved" "https://registry.npmjs.org/react-native-safe-area-context/-/react-native-safe-area-context-4.5.3.tgz"
-  "version" "4.5.3"
+"react-native-safe-area-context@*", "react-native-safe-area-context@>= 3.0.0", "react-native-safe-area-context@4.5.0":
+  "integrity" "sha512-0WORnk9SkREGUg2V7jHZbuN5x4vcxj/1B0QOcXJjdYWrzZHgLcUzYWWIUecUPJh747Mwjt/42RZDOaFn3L8kPQ=="
+  "resolved" "https://registry.npmjs.org/react-native-safe-area-context/-/react-native-safe-area-context-4.5.0.tgz"
+  "version" "4.5.0"
 
 "react-native-screens@>= 3.0.0":
   "integrity" "sha512-SybzBhceTN2LUfzvEQxpZ9SchlFgEdsR/+YOKcpIhKg2BdRObdIyQsRoJBvduZ55lKbO9Gpyl3Ke8tngz3873g=="
@@ -8212,6 +8212,11 @@
   dependencies:
     "react-freeze" "^1.0.0"
     "warn-once" "^0.1.0"
+
+"react-native-shadow-cards@^1.0.2":
+  "integrity" "sha512-cUk9+4T8XTwWPKJzLxmnFia9i0m5PWdLPrtGiShVH5vVH48TZ/8JLBzsUe50tfzTxvMWPvQM1vZE8Sytfj1mjw=="
+  "resolved" "https://registry.npmjs.org/react-native-shadow-cards/-/react-native-shadow-cards-1.0.2.tgz"
+  "version" "1.0.2"
 
 "react-native-status-bar-height@^2.6.0":
   "integrity" "sha512-z3SGLF0mHT+OlJDq7B7h/jXPjWcdBT3V14Le5L2PjntjjWM3+EJzq2BcXDwV+v67KFNJic5pgA26cCmseYek6w=="
