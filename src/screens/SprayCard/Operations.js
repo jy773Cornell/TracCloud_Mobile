@@ -5,12 +5,15 @@ import {Card} from 'react-native-shadow-cards';
 import {styles} from "./style";
 import {SprayCardReturn, SprayCardWithdraw} from "../../api/spraycard-api";
 import Toast from "../../components/Toast";
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {SprayCardContext} from "./Details";
 
-export default function Operations({uid,}) {
-    const {sprayCardProcess, sprayData, sprayOptions, onRefresh} = useContext(SprayCardContext);
+export default function Operations() {
     const navigation = useNavigation();
+    const route = useRoute();
+    const {uid,} = route.params;
+
+    const {sprayCardProcess, sprayCardContents, sprayData, sprayOptions, onRefresh} = useContext(SprayCardContext);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('success');
 
@@ -39,16 +42,6 @@ export default function Operations({uid,}) {
         );
     };
 
-    const handleAssignButtonClicked = () => {
-        setToastMessage('Please go to Web for Assign operation.');
-        setToastType('error');
-    };
-
-    const handleEditButtonClicked = () => {
-        setToastMessage('Please go to Web for Edit operation.');
-        setToastType('error');
-    };
-
     const performReturnAction = async () => {
         try {
             const response = await SprayCardReturn(sprayCardProcess.scpid, uid);
@@ -72,13 +65,68 @@ export default function Operations({uid,}) {
             if (response) {
                 setToastMessage('Process withdrew successfully.');
                 setToastType('success');
-                onRefresh();
+                setTimeout(() => {
+                    onRefresh();
+                }, 3000);
             }
         } catch (error) {
             // console.error("Error: ", error);
             setToastMessage(error.message);
             setToastType('error');
         }
+    };
+
+    const handleAssignButtonClicked = () => {
+        setToastMessage('Please go to Web for Assign operation.');
+        setToastType('error');
+    };
+
+    const handleReturnButtonClicked = () => {
+        Alert.alert(
+            "Confirmation",
+            "Are you sure you want to return this process?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "OK",
+                    onPress: () => {
+                        performReturnAction();
+                    }
+                }
+            ]
+        );
+    };
+
+    const handleCompleteButtonClicked = () => {
+        navigation.navigate('Complete Process', {sprayCardProcess, sprayCardContents, sprayData, sprayOptions,});
+    };
+
+    const handleEditButtonClicked = () => {
+        setToastMessage('Please go to Web for Edit operation.');
+        setToastType('error');
+    };
+
+    const handleWithdrawButtonClicked = () => {
+        Alert.alert(
+            "Confirmation",
+            "Are you sure you want to withdraw this process?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "OK",
+                    onPress: () => {
+                        performWithdrawAction();
+                    }
+                }
+            ]
+        );
+
     };
 
     return (
@@ -94,24 +142,7 @@ export default function Operations({uid,}) {
                         </View>
                         <View style={styles.overviewRowSec}>
                             <PaperButton labelStyle={styles.operationText} disabled={!returnCondition()}
-                                         onPress={() => {
-                                             Alert.alert(
-                                                 "Confirmation",
-                                                 "Are you sure you want to return this process?",
-                                                 [
-                                                     {
-                                                         text: "Cancel",
-                                                         style: "cancel"
-                                                     },
-                                                     {
-                                                         text: "OK",
-                                                         onPress: () => {
-                                                             performReturnAction();
-                                                         }
-                                                     }
-                                                 ]
-                                             );
-                                         }}
+                                         onPress={() => handleReturnButtonClicked()}
                             >
                                 Return
                             </PaperButton>
@@ -120,7 +151,7 @@ export default function Operations({uid,}) {
                     <View style={styles.detailsRow}>
                         <View style={styles.overviewRowSec}>
                             <PaperButton labelStyle={styles.operationText} disabled={!completeCondition()}
-                                         onPress={() => console.log("aaa")}>
+                                         onPress={() => handleCompleteButtonClicked()}>
                                 Complete
                             </PaperButton>
                         </View>
@@ -132,24 +163,7 @@ export default function Operations({uid,}) {
                         </View>
                         <View style={styles.overviewRowSec}>
                             <PaperButton labelStyle={styles.operationText} disabled={!withdrawCondition()}
-                                         onPress={() => {
-                                             Alert.alert(
-                                                 "Confirmation",
-                                                 "Are you sure you want to withdraw this process?",
-                                                 [
-                                                     {
-                                                         text: "Cancel",
-                                                         style: "cancel"
-                                                     },
-                                                     {
-                                                         text: "OK",
-                                                         onPress: () => {
-                                                             performWithdrawAction();
-                                                         }
-                                                     }
-                                                 ]
-                                             );
-                                         }}>
+                                         onPress={() => handleWithdrawButtonClicked()}>
                                 Withdraw
                             </PaperButton>
                         </View>

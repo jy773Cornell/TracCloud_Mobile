@@ -74,8 +74,8 @@ export default function Details() {
                     />}
             >
                 <Overview/>
-                <Content/>
                 <Operations uid={uid}/>
+                <Content/>
             </ScrollView>
         </SprayCardContext.Provider>
     );

@@ -1,6 +1,6 @@
 import React from 'react'
 import {View, StyleSheet, KeyboardAvoidingView} from 'react-native'
-import {theme} from '../core/theme'
+import {theme} from '../../core/theme'
 
 export default function Background({children}) {
     return (

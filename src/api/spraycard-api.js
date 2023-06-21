@@ -195,3 +195,29 @@ export const SprayCardWithdraw = async (spray_card_id, owner_id) => {
             }
         })
 }
+
+export const SprayCardComplete = async (apiData) => {
+    const csrfResponse = await getCSRFToken();
+    if (!csrfResponse.csrfToken) {
+        return ({error: "csrfToken not found"})
+    }
+
+    const csrfToken = csrfResponse.csrfToken;
+    console.log(apiData);
+    const requestOptions = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify(apiData),
+    };
+    return fetch(root + "/workflow/spraycard/complete/", requestOptions)
+        .then((response) => {
+            if (response.ok) {
+                return true;
+            } else {
+                throw new Error('Response not OK.');
+            }
+        })
+}

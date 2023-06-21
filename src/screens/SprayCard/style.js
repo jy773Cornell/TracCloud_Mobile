@@ -95,4 +95,16 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
     },
+    inputContainer: {
+        paddingTop: 15
+    },
+    textInput: {
+        borderColor: '#CCCCCC',
+        borderTopWidth: 1,
+        borderBottomWidth: 1,
+        height: 50,
+        fontSize: 25,
+        paddingLeft: 20,
+        paddingRight: 20
+    }
 });
