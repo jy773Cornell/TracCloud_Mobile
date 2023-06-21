@@ -3,10 +3,11 @@ import {createStackNavigator} from '@react-navigation/stack';
 import DataGrid from "./DataGrid";
 import Details from "./Details";
 import {useNavigation, useRoute} from '@react-navigation/native';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {getSprayData} from '../../api/spraycard-api'
 
 const Stack = createStackNavigator();
+export const RefreshRecordContext = React.createContext();
 
 export default function SprayCard() {
     const route = useRoute();
@@ -14,6 +15,7 @@ export default function SprayCard() {
 
     const [sprayData, setSprayData] = React.useState({});
     const [sprayOptions, setSprayOption] = React.useState({});
+    const [refreshRecord, setRefreshRecord] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -28,10 +30,13 @@ export default function SprayCard() {
         fetchData();
     }, []);
 
+
     return (
-        <Stack.Navigator initialRouteName="DataGrid">
-            <Stack.Screen name="Spray Card Process" component={DataGrid} initialParams={{uid: uid}}/>
-            <Stack.Screen name="Process Details" component={Details} initialParams={{uid: uid}}/>
-        </Stack.Navigator>
+        <RefreshRecordContext.Provider value={setRefreshRecord}>
+            <Stack.Navigator initialRouteName="DataGrid">
+                <Stack.Screen name="Spray Card Process" component={DataGrid} initialParams={{uid, refreshRecord}}/>
+                <Stack.Screen name="Process Details" component={Details} initialParams={{uid, refreshRecord}}/>
+            </Stack.Navigator>
+        </RefreshRecordContext.Provider>
     );
 }

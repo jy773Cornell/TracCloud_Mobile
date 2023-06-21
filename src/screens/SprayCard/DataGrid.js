@@ -1,17 +1,19 @@
 import _ from "lodash";
 import {StatusBar} from 'expo-status-bar';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {Text, View, FlatList, TouchableOpacity} from 'react-native';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {styles} from "./style";
 import {SprayCardListGet} from '../../api/spraycard-api'
+import {RefreshRecordContext} from "./SprayCard";
 
 
 export default function DataGrid() {
     const navigation = useNavigation()
     const route = useRoute();
-    const {uid,} = route.params;
+    const {uid, refreshRecord,} = route.params;
+    const setRefreshRecord = useContext(RefreshRecordContext);
 
     const [pets, setPets] = useState([])
     const [columns, setColumns] = useState([
@@ -21,8 +23,8 @@ export default function DataGrid() {
         "update",
     ])
     const [direction, setDirection] = useState(null)
+    const [sprayCardRecords, setSprayCardRecords] = useState(null)
     const [selectedColumn, setSelectedColumn] = useState(null)
-    const [sprayCardSelected, setSprayCardSelected] = useState(null)
 
     const createRowData = (record) => {
         return {
@@ -36,8 +38,7 @@ export default function DataGrid() {
     }
 
     const handleStateClick = (record) => {
-        setSprayCardSelected(record);
-        navigation.navigate('Process Details', {sprayCardSelected: sprayCardSelected,})
+        navigation.navigate('Process Details', {sprayCardSelected: record,})
     };
 
     const sortTable = (column) => {
@@ -78,13 +79,14 @@ export default function DataGrid() {
         const fetchData = async () => {
             try {
                 const response = await SprayCardListGet(uid);
+                setSprayCardRecords(response)
                 setPets(response.map((record) => createRowData(record)))
             } catch (error) {
                 console.error("Error fetching data: ", error);
             }
         }
         fetchData();
-    }, []);
+    }, [refreshRecord]);
 
     return (
         <View style={styles.container}>
@@ -99,7 +101,7 @@ export default function DataGrid() {
                         <View style={{...styles.tableRow, backgroundColor: index % 2 === 1 ? "#F0FBFC" : "white"}}>
                             <TouchableOpacity
                                 style={styles.columnRowState}
-                                onPress={() => handleStateClick(item)}
+                                onPress={() => handleStateClick(sprayCardRecords.find(record => record.scpid === item.id))}
                             >
                                 <Text style={styles.columnRowStateTxt}>{item.state}</Text>
                             </TouchableOpacity>

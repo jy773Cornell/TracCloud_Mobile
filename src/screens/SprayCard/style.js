@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
         alignItems: "center",
     },
     columnHeader: {
-        width: "20%",
+        width: "25%",
         justifyContent: "center",
         alignItems: "center"
     },
@@ -45,16 +45,17 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     card: {
-        width: "90%",
+        width: "95%",
         padding: 20,
         margin: 20
     },
-    overviewHeaderTxt: {
+    detailsHeaderTxt: {
         width: "100%",
         textAlign: "center",
         color: '#007BFF',
         fontWeight: "bold",
         fontSize: 20,
+        marginBottom: 10,
     },
     overviewSubheaderTxt: {
         width: "100%",
@@ -64,7 +65,29 @@ export const styles = StyleSheet.create({
         fontSize: 12,
         marginTop: 10,
     },
-    overviewRowTxt: {
-        color: '#007BFF',
+    detailsRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    detailsRowTxt: {
+        textAlign: "center",
+        fontSize: 15,
+    },
+    overviewRowSec: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    contentRowSec: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    operationText: {
+        fontWeight: 'bold',
+        fontSize: 16,
     },
 });

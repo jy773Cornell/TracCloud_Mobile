@@ -1,4 +1,7 @@
+import {getCSRFToken} from "./auth-api";
+
 const root = "https://tracloud.azurewebsites.net"
+
 export const getSprayData = async (uid) => {
     const requestOptions = {
         method: "GET",
@@ -121,4 +124,47 @@ export const SprayCardListGet = async (uid) => {
             }
         })
         .then((data) => data.data); // use another then to get the data
+}
+
+export const SprayCardContentGet = async (scpid) => {
+    const requestOptions = {
+        method: "GET",
+        headers: {'Accept': 'application/json', "Content-Type": "application/json",},
+    };
+
+    return fetch(root + "/workflow/spraycard/content/get/" + "?scpid=" + scpid, requestOptions)
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Response not OK');
+            }
+        }).then((data) => data.data)
+}
+
+export const SprayCardReturn = async (spray_card_id, holder_id) => {
+    const csrfResponse = await getCSRFToken();
+    if (!csrfResponse.csrfToken) {
+        return ({error: "csrfToken not found"})
+    }
+
+    const csrfToken = csrfResponse.csrfToken;
+    const apiData = {"spray_card_id": spray_card_id, "holder_id": holder_id};
+    console.log(apiData);
+    const requestOptions = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify(apiData),
+    };
+    return fetch(root + "/workflow/spraycard/return/", requestOptions)
+        .then((response) => {
+            if (response.ok) {
+                return true;
+            } else {
+                throw new Error('Response not OK');
+            }
+        })
 }
