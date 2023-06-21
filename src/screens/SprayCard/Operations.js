@@ -6,11 +6,9 @@ import {styles} from "./style";
 import {SprayCardReturn} from "../../api/spraycard-api";
 import Toast from "../../components/Toast";
 import {useNavigation} from '@react-navigation/native';
-import {RefreshRecordContext} from "./SprayCard";
 
-export default function Operations({uid, refreshRecord, sprayCardSelected}) {
+export default function Operations({uid, sprayCardSelected}) {
     const navigation = useNavigation();
-    const setRefreshRecord = useContext(RefreshRecordContext);
 
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('success');
@@ -47,7 +45,6 @@ export default function Operations({uid, refreshRecord, sprayCardSelected}) {
                 setToastMessage('Process returned successfully.');
                 setToastType('success');
                 setTimeout(() => {
-                    setRefreshRecord(!refreshRecord);
                     navigation.goBack();
                 }, 3000);
             }

@@ -11,10 +11,10 @@ export const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-evenly",
         alignItems: "center",
-        backgroundColor: "#37C2D0",
+        backgroundColor: "#007BFF",
         // borderTopEndRadius: 10,
         // borderTopStartRadius: 10,
-        height: 50
+        height: 40
     },
     tableRow: {
         flexDirection: "row",
@@ -29,14 +29,16 @@ export const styles = StyleSheet.create({
     columnHeaderTxt: {
         color: "white",
         fontWeight: "bold",
+        fontSize: 16,
     },
     columnRowTxt: {
         width: "25%",
         textAlign: "center",
+        fontSize:15,
     },
     columnRowStateTxt: {
         fontWeight: "bold",
-        color: '#007BFF',
+        fontSize:15,
     },
     columnRowState: {
         width: "25%",

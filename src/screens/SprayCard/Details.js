@@ -8,13 +8,13 @@ import Operations from "./Operations";
 
 export default function Details() {
     const route = useRoute();
-    const {uid, refreshRecord, sprayCardSelected} = route.params;
+    const {uid, sprayCardSelected} = route.params;
 
     return (
         <View style={styles.container}>
             <Overview sprayCardSelected={sprayCardSelected}/>
             <Content sprayCardSelected={sprayCardSelected}/>
-            <Operations uid={uid} refreshRecord={refreshRecord} sprayCardSelected={sprayCardSelected}/>
+            <Operations uid={uid} sprayCardSelected={sprayCardSelected}/>
         </View>
     );
 }

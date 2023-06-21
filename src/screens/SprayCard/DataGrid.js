@@ -5,26 +5,31 @@ import {Text, View, FlatList, TouchableOpacity} from 'react-native';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {styles} from "./style";
-import {SprayCardListGet} from '../../api/spraycard-api'
-import {RefreshRecordContext} from "./SprayCard";
-
+import {getSprayData, SprayCardListGet} from '../../api/spraycard-api'
+import {useFocusEffect} from '@react-navigation/native';
+import {Button as PaperButton} from "react-native-paper";
 
 export default function DataGrid() {
     const navigation = useNavigation()
     const route = useRoute();
-    const {uid, refreshRecord,} = route.params;
-    const setRefreshRecord = useContext(RefreshRecordContext);
+    const {uid,} = route.params;
 
-    const [pets, setPets] = useState([])
+    const [sprayData, setSprayData] = React.useState({});
+    const [sprayOptions, setSprayOption] = React.useState({});
+    const [sprayCardRecords, setSprayCardRecords] = useState(null)
+
+    const [state, setState] = useState({
+        direction: null,
+        selectedColumn: null,
+        pets: [],
+    })
     const [columns, setColumns] = useState([
         "state",
         "owner",
         "holder",
         "update",
     ])
-    const [direction, setDirection] = useState(null)
-    const [sprayCardRecords, setSprayCardRecords] = useState(null)
-    const [selectedColumn, setSelectedColumn] = useState(null)
+    const [refreshing, setRefreshing] = useState(false);
 
     const createRowData = (record) => {
         return {
@@ -42,11 +47,16 @@ export default function DataGrid() {
     };
 
     const sortTable = (column) => {
-        const newDirection = direction === "desc" ? "asc" : "desc"
-        const sortedData = _.orderBy(pets, [column], [newDirection])
-        setSelectedColumn(column)
-        setDirection(newDirection)
-        setPets(sortedData)
+        setState(prevState => {
+            const newDirection = prevState.direction === "desc" ? "asc" : "desc"
+            const sortedData = _.orderBy(prevState.pets, [column], [newDirection])
+            return {
+                ...prevState,
+                direction: newDirection,
+                pets: sortedData,
+                selectedColumn: column,
+            }
+        })
     }
 
     const tableHeader = () => (
@@ -61,9 +71,9 @@ export default function DataGrid() {
                                 onPress={() => sortTable(column)}>
                                 <Text style={styles.columnHeaderTxt}>
                                     {column + " "}
-                                    {selectedColumn === column &&
+                                    {state.selectedColumn === column &&
                                         <MaterialCommunityIcons
-                                            name={direction === "desc" ? "arrow-down-drop-circle" : "arrow-up-drop-circle"}
+                                            name={state.direction === "desc" ? "arrow-down-drop-circle" : "arrow-up-drop-circle"}
                                         />
                                     }
                                 </Text>
@@ -75,36 +85,53 @@ export default function DataGrid() {
         </View>
     )
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await SprayCardListGet(uid);
-                setSprayCardRecords(response)
-                setPets(response.map((record) => createRowData(record)))
-            } catch (error) {
-                console.error("Error fetching data: ", error);
-            }
+    const fetchUserData = async () => {
+        try {
+            const response = await getSprayData(uid);
+            setSprayData(response.record_data);
+            setSprayOption(response.option_data);
+        } catch (error) {
+            console.error("Error fetching data: ", error);
         }
-        fetchData();
-    }, [refreshRecord]);
+    }
+
+    const fetchSprayData = async () => {
+        try {
+            const response = await SprayCardListGet(uid);
+            setSprayCardRecords(response)
+            setState((prevState) => ({
+                ...prevState,
+                pets: response.map((record) => createRowData(record))
+            }));
+        } catch (error) {
+            console.error("Error fetching data: ", error);
+        }
+    }
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        Promise.all([fetchUserData(), fetchSprayData()]).then(() => setRefreshing(false));
+    }, [uid]);
+
+    useFocusEffect(onRefresh);
 
     return (
         <View style={styles.container}>
             <FlatList
-                data={pets}
+                data={state.pets}
                 style={{width: "100%"}}
                 keyExtractor={(item) => item.id}
                 ListHeaderComponent={tableHeader}
                 stickyHeaderIndices={[0]}
+                onRefresh={onRefresh}
+                refreshing={refreshing}
                 renderItem={({item, index}) => {
                     return (
-                        <View style={{...styles.tableRow, backgroundColor: index % 2 === 1 ? "#F0FBFC" : "white"}}>
-                            <TouchableOpacity
-                                style={styles.columnRowState}
-                                onPress={() => handleStateClick(sprayCardRecords.find(record => record.scpid === item.id))}
-                            >
-                                <Text style={styles.columnRowStateTxt}>{item.state}</Text>
-                            </TouchableOpacity>
+                        <View style={{...styles.tableRow, backgroundColor: index % 2 === 1 ? "#F0F8FF" : "white"}}>
+                            <PaperButton style={styles.columnRowState} labelStyle={styles.columnRowStateTxt}
+                                         onPress={() => handleStateClick(sprayCardRecords.find(record => record.scpid === item.id))}>
+                                {item.state}
+                            </PaperButton>
                             <Text style={styles.columnRowTxt}>{item.owner}</Text>
                             <Text style={styles.columnRowTxt}>{item.holder}</Text>
                             <Text style={styles.columnRowTxt}>{item.update}</Text>
