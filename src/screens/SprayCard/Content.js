@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Text, View} from 'react-native';
 import {Card} from 'react-native-shadow-cards';
 import {styles} from "./style";
-import {SprayCardContentGet} from "../../api/spraycard-api";
+import {getSprayData, SprayCardContentGet} from "../../api/spraycard-api";
 
 export default function Content({sprayCardSelected}) {
     const [sprayCardContents, setSprayCardContents] = useState([])
@@ -35,16 +35,17 @@ export default function Content({sprayCardSelected}) {
         setSiteContents(uniqueSites);
     };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await SprayCardContentGet(sprayCardSelected.scpid);
-                setSprayCardContents(response);
-            } catch (error) {
-                console.error("Error fetching data: ", error);
-            }
+    const fetchContentData = async () => {
+        try {
+            const response = await SprayCardContentGet(sprayCardSelected.scpid);
+            setSprayCardContents(response);
+        } catch (error) {
+            console.error("Error fetching data: ", error);
         }
-        fetchData();
+    }
+
+    useEffect(() => {
+        fetchContentData();
     }, []);
 
     useEffect(() => {

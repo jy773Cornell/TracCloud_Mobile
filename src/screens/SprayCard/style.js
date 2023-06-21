@@ -2,10 +2,13 @@ import {StyleSheet} from "react-native";
 
 export const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexGrow: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
         // justifyContent: 'center',
+    },
+    scrollContainer: {
+        backgroundColor: '#fff',
     },
     tableHeader: {
         flexDirection: "row",
@@ -34,11 +37,11 @@ export const styles = StyleSheet.create({
     columnRowTxt: {
         width: "25%",
         textAlign: "center",
-        fontSize:15,
+        fontSize: 15,
     },
     columnRowStateTxt: {
         fontWeight: "bold",
-        fontSize:15,
+        fontSize: 15,
     },
     columnRowState: {
         width: "25%",

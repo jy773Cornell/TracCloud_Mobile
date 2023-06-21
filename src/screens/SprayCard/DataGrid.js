@@ -14,10 +14,7 @@ export default function DataGrid() {
     const route = useRoute();
     const {uid,} = route.params;
 
-    const [sprayData, setSprayData] = React.useState({});
-    const [sprayOptions, setSprayOption] = React.useState({});
     const [sprayCardRecords, setSprayCardRecords] = useState(null)
-
     const [state, setState] = useState({
         direction: null,
         selectedColumn: null,
@@ -85,16 +82,6 @@ export default function DataGrid() {
         </View>
     )
 
-    const fetchUserData = async () => {
-        try {
-            const response = await getSprayData(uid);
-            setSprayData(response.record_data);
-            setSprayOption(response.option_data);
-        } catch (error) {
-            console.error("Error fetching data: ", error);
-        }
-    }
-
     const fetchSprayData = async () => {
         try {
             const response = await SprayCardListGet(uid);
@@ -110,7 +97,7 @@ export default function DataGrid() {
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        Promise.all([fetchUserData(), fetchSprayData()]).then(() => setRefreshing(false));
+        Promise.all([fetchSprayData()]).then(() => setRefreshing(false));
     }, [uid]);
 
     useFocusEffect(onRefresh);

@@ -120,7 +120,7 @@ export const SprayCardListGet = async (uid) => {
             if (response.ok) {
                 return response.json();
             } else {
-                throw new Error('Response not OK');
+                throw new Error('Response not OK.');
             }
         })
         .then((data) => data.data); // use another then to get the data
@@ -137,7 +137,7 @@ export const SprayCardContentGet = async (scpid) => {
             if (response.ok) {
                 return response.json();
             } else {
-                throw new Error('Response not OK');
+                throw new Error('Response not OK.');
             }
         }).then((data) => data.data)
 }
@@ -145,7 +145,7 @@ export const SprayCardContentGet = async (scpid) => {
 export const SprayCardReturn = async (spray_card_id, holder_id) => {
     const csrfResponse = await getCSRFToken();
     if (!csrfResponse.csrfToken) {
-        return ({error: "csrfToken not found"})
+        return ({error: "csrfToken not found."})
     }
 
     const csrfToken = csrfResponse.csrfToken;
@@ -164,7 +164,34 @@ export const SprayCardReturn = async (spray_card_id, holder_id) => {
             if (response.ok) {
                 return true;
             } else {
-                throw new Error('Response not OK');
+                throw new Error('Response not OK.');
+            }
+        })
+}
+
+export const SprayCardWithdraw = async (spray_card_id, owner_id) => {
+    const csrfResponse = await getCSRFToken();
+    if (!csrfResponse.csrfToken) {
+        return ({error: "csrfToken not found"})
+    }
+
+    const csrfToken = csrfResponse.csrfToken;
+    const apiData = {"spray_card_id": spray_card_id, "owner_id": owner_id};
+    console.log(apiData);
+    const requestOptions = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify(apiData),
+    };
+    return fetch(root + "/workflow/spraycard/withdraw/", requestOptions)
+        .then((response) => {
+            if (response.ok) {
+                return true;
+            } else {
+                throw new Error('Response not OK.');
             }
         })
 }
