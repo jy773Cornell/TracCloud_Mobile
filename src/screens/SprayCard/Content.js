@@ -1,17 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Text, View} from 'react-native';
 import {Card} from 'react-native-shadow-cards';
 import {styles} from "./style";
-import {getSprayData, SprayCardContentGet} from "../../api/spraycard-api";
+import {SprayCardContext} from "./Details";
 
-export default function Content({sprayCardSelected}) {
-    const [sprayCardContents, setSprayCardContents] = useState([])
+export default function Content() {
+    const {sprayCardContents,} = useContext(SprayCardContext);
     const [chemicalContents, setChemicalContents] = React.useState([]);
     const [decisionContents, setDecisionContents] = React.useState([]);
     const [cropContents, setCropContents] = React.useState([]);
     const [targetContents, setTargetContents] = React.useState([]);
     const [siteContents, setSiteContents] = React.useState([]);
-
     const updateSprayCardContent = () => {
         const uniqueChemicalPurchases = [...new Map(sprayCardContents.map(item => [JSON.stringify(item.chemical_purchase), item.chemical_purchase])).values()];
         setChemicalContents(uniqueChemicalPurchases);
@@ -34,19 +33,6 @@ export default function Content({sprayCardSelected}) {
         const uniqueSites = [...new Map(sprayCardContents.map(item => [JSON.stringify(item.site), item.site])).values()];
         setSiteContents(uniqueSites);
     };
-
-    const fetchContentData = async () => {
-        try {
-            const response = await SprayCardContentGet(sprayCardSelected.scpid);
-            setSprayCardContents(response);
-        } catch (error) {
-            console.error("Error fetching data: ", error);
-        }
-    }
-
-    useEffect(() => {
-        fetchContentData();
-    }, []);
 
     useEffect(() => {
         updateSprayCardContent()

@@ -8170,6 +8170,13 @@
     "jscodeshift" "^0.13.1"
     "nullthrows" "^1.1.1"
 
+"react-native-event-listeners@^1.0.7":
+  "integrity" "sha512-yne2ldnqGtABnuN6VSPgs5afaHZZYIAGMoyBUJFn5O2t5t78eCbX9vNa3hvOIIwulKMkZVfqyRtYcSOrNMmMhg=="
+  "resolved" "https://registry.npmjs.org/react-native-event-listeners/-/react-native-event-listeners-1.0.7.tgz"
+  "version" "1.0.7"
+  dependencies:
+    "type-detect" "^4.0.8"
+
 "react-native-gesture-handler@>= 1.0.0":
   "integrity" "sha512-rr+XwVzXAVpY8co25ukvyI38fKCxTQjz7WajeZktl8qUPdh1twnSExgpT47DqDi4n+m+OiJPAnHfZOkqqAQMOg=="
   "resolved" "https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.12.0.tgz"
@@ -9499,7 +9506,7 @@
   "resolved" "https://registry.npmjs.org/tslib/-/tslib-2.5.3.tgz"
   "version" "2.5.3"
 
-"type-detect@4.0.8":
+"type-detect@^4.0.8", "type-detect@4.0.8":
   "integrity" "sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g=="
   "resolved" "https://registry.npmjs.org/type-detect/-/type-detect-4.0.8.tgz"
   "version" "4.0.8"

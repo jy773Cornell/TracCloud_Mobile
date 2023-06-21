@@ -3,40 +3,39 @@ import {Alert, Text, View} from 'react-native';
 import {Button as PaperButton} from 'react-native-paper'
 import {Card} from 'react-native-shadow-cards';
 import {styles} from "./style";
-import {getSprayData, SprayCardReturn, SprayCardWithdraw} from "../../api/spraycard-api";
+import {SprayCardReturn, SprayCardWithdraw} from "../../api/spraycard-api";
 import Toast from "../../components/Toast";
 import {useNavigation} from '@react-navigation/native';
+import {SprayCardContext} from "./Details";
 
-export default function Operations({uid, sprayCardSelected}) {
+export default function Operations({uid,}) {
+    const {sprayCardProcess, sprayData, sprayOptions, onRefresh} = useContext(SprayCardContext);
     const navigation = useNavigation();
-
-    const [sprayData, setSprayData] = React.useState({});
-    const [sprayOptions, setSprayOption] = React.useState({});
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('success');
 
     const completeCondition = () => {
         return (
-            sprayCardSelected?.holder_id === uid
+            sprayCardProcess?.holder_id === uid
         );
     };
 
     const returnCondition = () => {
         return (
-            sprayCardSelected?.holder_id === uid &&
-            sprayCardSelected?.holder_id !== sprayCardSelected?.owner_id);
+            sprayCardProcess?.holder_id === uid &&
+            sprayCardProcess?.holder_id !== sprayCardProcess?.owner_id);
     };
 
     const editCondition = () => {
         return (
-            sprayCardSelected?.owner_id === uid &&
-            sprayCardSelected?.holder_id === sprayCardSelected?.owner_id);
+            sprayCardProcess?.owner_id === uid &&
+            sprayCardProcess?.holder_id === sprayCardProcess?.owner_id);
     };
 
     const withdrawCondition = () => {
         return (
-            sprayCardSelected?.owner_id === uid
-            && sprayCardSelected?.state !== 'archived'
+            sprayCardProcess?.owner_id === uid
+            && sprayCardProcess?.state !== 'archived'
         );
     };
 
@@ -52,7 +51,7 @@ export default function Operations({uid, sprayCardSelected}) {
 
     const performReturnAction = async () => {
         try {
-            const response = await SprayCardReturn(sprayCardSelected.scpid, uid);
+            const response = await SprayCardReturn(sprayCardProcess.scpid, uid);
             if (response) {
                 setToastMessage('Process returned successfully.');
                 setToastType('success');
@@ -69,13 +68,11 @@ export default function Operations({uid, sprayCardSelected}) {
 
     const performWithdrawAction = async () => {
         try {
-            const response = await SprayCardWithdraw(sprayCardSelected.scpid, uid);
+            const response = await SprayCardWithdraw(sprayCardProcess.scpid, uid);
             if (response) {
                 setToastMessage('Process withdrew successfully.');
                 setToastType('success');
-                setTimeout(() => {
-                    navigation.goBack();
-                }, 3000);
+                onRefresh();
             }
         } catch (error) {
             // console.error("Error: ", error);
@@ -84,22 +81,8 @@ export default function Operations({uid, sprayCardSelected}) {
         }
     };
 
-    const fetchUserData = async () => {
-        try {
-            const response = await getSprayData(uid);
-            setSprayData(response.record_data);
-            setSprayOption(response.option_data);
-        } catch (error) {
-            console.error("Error fetching data: ", error);
-        }
-    }
-
-    useEffect(() => {
-        fetchUserData();
-    }, [])
-
     return (
-        ["completed", "withdrew"].includes(sprayCardSelected?.state) ? null :
+        ["completed", "withdrew"].includes(sprayCardProcess?.state) ? null :
             <>
                 <Card style={{...styles.card, marginTop: 0}}>
                     <Text style={styles.detailsHeaderTxt}>Operations</Text>
