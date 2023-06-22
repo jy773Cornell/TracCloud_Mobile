@@ -4,7 +4,7 @@ import {TextInput as Input} from 'react-native-paper'
 import {theme} from '../../core/theme'
 import DropDown from 'react-native-paper-dropdown';
 
-export function TextInput({errorText, description, endAdornment, ...props}) {
+export function InputComponents({errorText, description, endAdornment, ...props}) {
     return (
         <View style={styles.container}>
             <Input

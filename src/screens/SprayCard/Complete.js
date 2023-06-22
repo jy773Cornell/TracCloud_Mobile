@@ -8,7 +8,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {TouchableOpacity} from "react-native";
 import {Card} from "react-native-shadow-cards";
 import {SprayCardComplete} from "../../api/spraycard-api";
-import {TextInput, Dropdown} from "./TextInput";
+import {InputComponents, Dropdown} from "./InputComponents";
 import {Provider as PaperProvider} from 'react-native-paper';
 import Toast from "../../components/Toast";
 import Button from './Button'
@@ -262,7 +262,7 @@ export default function Complete() {
                 {Object.keys(chemicalInfo).map((index) => (
                     <React.Fragment key={index}>
                         <View style={styles.completeRow}>
-                            <TextInput
+                            <InputComponents
                                 label={"Amount for " + chemicalInfo[index].label.split(" | ")[1] + " (" + chemicalInfo[index].label.split(" | ")[0] + ")"}
                                 returnKeyType="next"
                                 value={fieldValues[field_names[2]][index]}
@@ -272,7 +272,6 @@ export default function Complete() {
                                         handleInputChange(text, field_names[2], index)
                                     }
                                 }}
-                                error={fieldErrors?.[field_names[2]]?.[index] || false}
                                 errorText={fieldErrors?.[field_names[2]]?.[index] ? "This field is required" : ""}
                                 endAdornment={chemicalInfo[index].unit}
                                 autoCapitalize="none"
@@ -317,7 +316,7 @@ export default function Complete() {
                     />
                 </View>
                 <View style={styles.completeRow}>
-                    <TextInput
+                    <InputComponents
                         label="Water Use"
                         returnKeyType="next"
                         value={fieldValues[field_names[8]]}
@@ -327,7 +326,6 @@ export default function Complete() {
                                 handleInputChange(text, field_names[8])
                             }
                         }}
-                        error={fieldErrors?.[field_names[8]] || false}
                         errorText={fieldErrors?.[field_names[8]] ? "This field is required" : ""}
                         autoCapitalize="none"
                         keyboardType="decimal-pad"
@@ -348,7 +346,7 @@ export default function Complete() {
                 </View>
                 <View style={styles.completeRow}>
 
-                    <TextInput
+                    <InputComponents
                         label="Temperature"
                         returnKeyType="next"
                         value={fieldValues[field_names[10]]}
@@ -358,7 +356,6 @@ export default function Complete() {
                                 handleInputChange(text, field_names[10])
                             }
                         }}
-                        error={false}
                         errorText={""}
                         endAdornment="°F"
                         autoCapitalize="none"
@@ -366,7 +363,7 @@ export default function Complete() {
                     />
                 </View>
                 <View style={styles.completeRow}>
-                    <TextInput
+                    <InputComponents
                         label="Wind Speed"
                         returnKeyType="next"
                         value={fieldValues[field_names[11]]}
@@ -376,7 +373,6 @@ export default function Complete() {
                                 handleInputChange(text, field_names[11])
                             }
                         }}
-                        error={false}
                         errorText={""}
                         endAdornment="mph"
                         autoCapitalize="none"
