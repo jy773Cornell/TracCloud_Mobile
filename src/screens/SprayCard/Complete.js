@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {styles} from "./style";
-import {KeyboardAvoidingView, Platform, ScrollView} from "react-native";
+import {KeyboardAvoidingView, ScrollView} from "react-native";
 import {Text} from "react-native-paper";
 import {useNavigation, useRoute} from "@react-navigation/native";
 import {View} from "react-native";
@@ -8,8 +8,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {TouchableOpacity} from "react-native";
 import {Card} from "react-native-shadow-cards";
 import {SprayCardComplete} from "../../api/spraycard-api";
-import {InputComponents, Dropdown} from "./InputComponents";
-import {Provider as PaperProvider} from 'react-native-paper';
+import {TextInput, PickerModel} from "./InputComponents";
 import Toast from "../../components/Toast";
 import Button from './Button'
 import {theme} from "../../core/theme";
@@ -77,7 +76,6 @@ export default function Complete() {
             }));
         }
 
-        console.log(fieldValues);
     };
 
     const updateCorpSiteInfo = () => {
@@ -262,9 +260,9 @@ export default function Complete() {
                 {Object.keys(chemicalInfo).map((index) => (
                     <React.Fragment key={index}>
                         <View style={styles.completeRow}>
-                            <InputComponents
+                            <TextInput
                                 label={"Amount for " + chemicalInfo[index].label.split(" | ")[1] + " (" + chemicalInfo[index].label.split(" | ")[0] + ")"}
-                                returnKeyType="next"
+                                returnKeyType="done"
                                 value={fieldValues[field_names[2]][index]}
                                 onChangeText={(text) => {
                                     const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
@@ -279,19 +277,21 @@ export default function Complete() {
                             />
                         </View>
                         <View style={styles.completeSubRow}>
-                            <Text style={[styles.completeSubSubjectTxt, {fontWeight: 'bold'}]}>Cost: $ </Text>
-                            <Text style={[styles.completeSubSubjectTxt, {color: '#007BFF',}]}>
-                                {fieldValues[field_names[4]]?.[index] || 0}
-                            </Text>
-                        </View>
-                        <View style={styles.completeSubRow}>
-                            <Text style={[styles.completeSubSubjectTxt, {fontWeight: 'bold'}]}>Rate: </Text>
-                            <Text style={[styles.completeSubSubjectTxt, {color: '#007BFF',}]}>
-                                {fieldValues[field_names[5]]?.[index] || 0}
-                            </Text>
-                            <Text style={styles.completeSubSubjectTxt}>
-                                {" " + chemicalInfo[index].unit} / {(Object.values(cropSiteInfo)[0])[0].size_unit}
-                            </Text>
+                            <View style={styles.completeSubRowSec}>
+                                <Text style={styles.completeSubSubjectTxt}>Cost: $ </Text>
+                                <Text style={[styles.completeSubSubjectTxt, {color: '#007BFF',}]}>
+                                    {fieldValues[field_names[4]]?.[index] || 0}
+                                </Text>
+                            </View>
+                            <View style={styles.completeSubRowSec}>
+                                <Text style={styles.completeSubSubjectTxt}>Rate: </Text>
+                                <Text style={[styles.completeSubSubjectTxt, {color: '#007BFF',}]}>
+                                    {fieldValues[field_names[5]]?.[index] || 0}
+                                </Text>
+                                <Text style={styles.completeSubSubjectTxt}>
+                                    {" " + chemicalInfo[index].unit} / {(Object.values(cropSiteInfo)[0])[0].size_unit}
+                                </Text>
+                            </View>
                         </View>
                     </React.Fragment>
                 ))}
@@ -303,22 +303,22 @@ export default function Complete() {
         return (
             <>
                 <View style={styles.completeRow}>
-                    <Dropdown
-                        label={"Equipment"}
-                        mode={"outlined"}
+                    <Text style={[styles.completeSubjectTxt, {fontWeight: 'bold'}]}>Equipment: </Text>
+                    <PickerModel
+                        label={"Choose equipment"}
                         value={equipment}
                         setValue={setEquipment}
                         list={sprayOptions["equipmentOptions"].map(option => ({
-                            label: option.label,
-                            value: option.id
+                            Name: option.label,
+                            Id: option.id
                         }))}
-                        errorText={fieldErrors?.[field_names[7]] ? "This field is required" : ""}
+                        error={fieldErrors?.[field_names[7]]}
                     />
                 </View>
                 <View style={styles.completeRow}>
-                    <InputComponents
+                    <TextInput
                         label="Water Use"
-                        returnKeyType="next"
+                        returnKeyType="done"
                         value={fieldValues[field_names[8]]}
                         onChangeText={(text) => {
                             const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
@@ -332,23 +332,23 @@ export default function Complete() {
                     />
                 </View>
                 <View style={styles.completeRow}>
-                    <Dropdown
-                        label={"Water Unit"}
-                        mode={"outlined"}
+                    <Text style={[styles.completeSubjectTxt, {fontWeight: 'bold'}]}>Water Unit: </Text>
+                    <PickerModel
+                        label={"Choose a unit"}
                         value={waterUnit}
                         setValue={setWaterUnit}
                         list={sprayOptions["chemicalUnitOptions"].map(option => ({
-                            label: option.label,
-                            value: option.id
+                            Name: option.label,
+                            Id: option.id
                         }))}
-                        errorText={fieldErrors?.[field_names[9]] ? "This field is required" : ""}
+                        error={fieldErrors?.[field_names[9]]}
                     />
                 </View>
                 <View style={styles.completeRow}>
 
-                    <InputComponents
+                    <TextInput
                         label="Temperature"
-                        returnKeyType="next"
+                        returnKeyType="done"
                         value={fieldValues[field_names[10]]}
                         onChangeText={(text) => {
                             const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
@@ -363,9 +363,9 @@ export default function Complete() {
                     />
                 </View>
                 <View style={styles.completeRow}>
-                    <InputComponents
+                    <TextInput
                         label="Wind Speed"
-                        returnKeyType="next"
+                        returnKeyType="done"
                         value={fieldValues[field_names[11]]}
                         onChangeText={(text) => {
                             const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
@@ -380,14 +380,14 @@ export default function Complete() {
                     />
                 </View>
                 <View style={styles.completeRow}>
-                    <Dropdown
-                        label={"Wind Direction"}
-                        mode={"outlined"}
+                    <Text style={[styles.completeSubjectTxt, {fontWeight: 'bold'}]}>Wind Direction: </Text>
+                    <PickerModel
+                        label={"Choose a direction"}
                         value={windDirection}
                         setValue={setWindDirection}
                         list={windDirections.map(option => ({
-                            label: option.label,
-                            value: option.id
+                            Name: option.label,
+                            Id: option.id
                         }))}
                     />
                 </View>
@@ -440,20 +440,20 @@ export default function Complete() {
     }, []);
 
     useEffect(() => {
-        handleInputChange(equipment, field_names[7])
+        handleInputChange(equipment?.Id ? equipment.Id : "", field_names[7])
     }, [equipment]);
 
     useEffect(() => {
-        handleInputChange(waterUnit, field_names[9])
+        handleInputChange(waterUnit?.Id ? waterUnit.Id : "", field_names[9])
     }, [waterUnit]);
 
     useEffect(() => {
-        handleInputChange(windDirection, field_names[12])
+        handleInputChange(windDirection?.Id ? windDirection.Id : "", field_names[12])
     }, [windDirection]);
 
     return (
-        <PaperProvider>
-            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <>
+            <KeyboardAvoidingView behavior="padding">
                 <ScrollView
                     contentContainerStyle={styles.container}
                     style={styles.scrollContainer}
@@ -468,6 +468,6 @@ export default function Complete() {
                 </ScrollView>
             </KeyboardAvoidingView>
             <Toast type={toastType} message={toastMessage} onDismiss={() => setToastMessage('')}/>
-        </PaperProvider>
+        </>
     )
 }

@@ -110,12 +110,13 @@ export const styles = StyleSheet.create({
         margin: 10,
     },
     completeSubjectTxt: {
-        fontSize: 15,
+        fontSize: 16,
     },
     completeSubRow: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 10,
     },
     completeSubSubjectTxt: {
         fontSize: 14,
@@ -126,5 +127,6 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        flexWrap: 'wrap'
     },
 });

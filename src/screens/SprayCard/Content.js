@@ -39,7 +39,7 @@ export default function Content() {
     }, [sprayCardContents]);
 
     return (
-        <Card style={{...styles.card, marginTop: 0}}>
+        <Card style={{...styles.card, marginTop: 0, paddingHorizontal: 20}}>
             <Text style={styles.detailsHeaderTxt}>Spray Card</Text>
             {cropContents.map((item, index) => (
                 <View style={styles.detailsRow} key={item.id}>

@@ -1,10 +1,12 @@
 import React, {useState} from 'react'
-import {View, StyleSheet, Text} from 'react-native'
+import {View, StyleSheet, Text, TouchableOpacity} from 'react-native'
 import {TextInput as Input} from 'react-native-paper'
 import {theme} from '../../core/theme'
 import DropDown from 'react-native-paper-dropdown';
+import PickerModal from 'react-native-picker-modal-view';
+import {styles as sty} from "./style";
 
-export function InputComponents({errorText, description, endAdornment, ...props}) {
+export function TextInput({errorText, description, endAdornment, ...props}) {
     return (
         <View style={styles.container}>
             <Input
@@ -50,6 +52,38 @@ export function Dropdown({label, value, setValue, errorText, description, list, 
     );
 }
 
+export function PickerModel({label, value, setValue, list, error = false, ...props}) {
+    const [selectedItem, setSelectedItem] = useState(value);
+
+    const onSelected = (item) => {
+        setSelectedItem(item);
+        if (setValue) setValue(item);
+    }
+
+    return (
+        <PickerModal
+            renderSelectView={(disabled, selected, showModal) =>
+                <TouchableOpacity disabled={disabled} onPress={showModal} style={styles.button}>
+                    <Text
+                        style={[sty.completeSubjectTxt, {color: error ? theme.colors.error : '#007BFF',}]}>
+                        {value ? value.Name : label}
+                    </Text>
+                </TouchableOpacity>
+            }
+            onSelected={onSelected}
+            items={list}
+            sortingLanguage={'tr'}
+            showToTopButton={true}
+            selected={selectedItem}
+            showAlphabeticalIndex={true}
+            autoGenerateAlphabeticalIndex={true}
+            searchPlaceholderText={'Search...'}
+            requireSelection={false}
+            autoSort={false}
+        />
+    );
+}
+
 const styles = StyleSheet.create({
     container: {
         width: '100%',
@@ -65,7 +99,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: theme.colors.error,
     },
-     dropdown: {
-      backgroundColor: 'white'
+    dropdown: {
+        backgroundColor: 'white'
     },
 })

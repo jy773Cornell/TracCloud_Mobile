@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   input: {
-    backgroundColor: theme.colors.surface,
+    backgroundColor: "#fff",
   },
   description: {
     fontSize: 13,
