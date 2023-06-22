@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {styles} from "./style";
-import {Button, Keyboard, ScrollView} from "react-native";
+import {KeyboardAvoidingView, Platform, ScrollView} from "react-native";
 import {Text} from "react-native-paper";
 import {useNavigation, useRoute} from "@react-navigation/native";
 import {View} from "react-native";
@@ -8,7 +8,11 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import {TouchableOpacity} from "react-native";
 import {Card} from "react-native-shadow-cards";
 import {SprayCardComplete} from "../../api/spraycard-api";
-import {TextInput} from "./TextInput";
+import {TextInput, Dropdown} from "./TextInput";
+import {Provider as PaperProvider} from 'react-native-paper';
+import Toast from "../../components/Toast";
+import Button from './Button'
+import {theme} from "../../core/theme";
 
 const field_names = [
     "start_time", "finish_time",
@@ -16,6 +20,17 @@ const field_names = [
     "equipment", "water_use", "water_unit",
     "average_temp", "wind_speed", "wind_direction",
 ]
+
+const windDirections = [
+    {label: 'North', id: 'North'},
+    {label: 'Northeast', id: 'Northeast'},
+    {label: 'East', id: 'East'},
+    {label: 'Southeast', id: 'Southeast'},
+    {label: 'South', id: 'South'},
+    {label: 'Southwest', id: 'Southwest'},
+    {label: 'West', id: 'West'},
+    {label: 'Northwest', id: 'Northwest'}
+];
 
 export default function Complete() {
     const navigation = useNavigation();
@@ -26,12 +41,16 @@ export default function Complete() {
     const [fieldErrors, setFieldErrors] = useState({});
     const [startDatePicker, setStartDatePicker] = useState(false);
     const [finishDatePicker, setFinishDatePicker] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('success');
 
     const [cropSiteInfo, setCropSiteInfo] = useState({});
     const [chemicalInfo, setChemicalInfo] = React.useState([]);
     const [totalSiteSize, setTotalSiteSize] = useState(0);
+    const [waterUnit, setWaterUnit] = useState("");
+    const [equipment, setEquipment] = useState("");
+    const [windDirection, setWindDirection] = useState("");
 
     const handleInputChange = (value, field, index = null) => {
         let fieldObj;
@@ -130,7 +149,7 @@ export default function Complete() {
     const checkFields = () => {
         let valid = true;
         setFieldErrors(initialFieldErrors);
-        const checkFieldNames = [field_names[2], field_names[7], field_names[8], field_names[9]];
+        const checkFieldNames = [field_names[0], field_names[1], field_names[2], field_names[7], field_names[8], field_names[9]];
 
         checkFieldNames.map(field => {
             if (field === field_names[2]) {
@@ -162,7 +181,10 @@ export default function Complete() {
     const handleSubmitButtonClicked = async () => {
         if (checkFields()) {
             try {
+                setLoading(true);
                 const response = await SprayCardComplete(reformatSubmitData());
+                setLoading(false);
+
                 if (response) {
                     setToastMessage('Process completed successfully.');
                     setToastType('success');
@@ -175,6 +197,9 @@ export default function Complete() {
                 setToastMessage(error.message);
                 setToastType('error');
             }
+        } else {
+            setToastMessage('Incomplete fields. Please check again.');
+            setToastType('error');
         }
     };
 
@@ -195,7 +220,7 @@ export default function Complete() {
                     <Text style={[styles.completeSubjectTxt, {fontWeight: 'bold'}]}>Start Time: </Text>
                     <TouchableOpacity onPress={() => setStartDatePicker(true)} style={styles.button}>
                         <Text
-                            style={[styles.completeSubjectTxt, {color: '#007BFF',}]}>
+                            style={[styles.completeSubjectTxt, {color: fieldErrors?.[field_names[0]] ? theme.colors.error : '#007BFF',}]}>
                             {fieldValues[field_names[0]] ? fieldValues[field_names[0]] : "Pick a datetime"}
                         </Text>
                     </TouchableOpacity>
@@ -213,7 +238,7 @@ export default function Complete() {
                     <Text style={[styles.completeSubjectTxt, {fontWeight: 'bold'}]}>Finish Time: </Text>
                     <TouchableOpacity onPress={() => setFinishDatePicker(true)} style={styles.button}>
                         <Text
-                            style={[styles.completeSubjectTxt, {color: '#007BFF',}]}>
+                            style={[styles.completeSubjectTxt, {color: fieldErrors?.[field_names[1]] ? theme.colors.error : '#007BFF',}]}>
                             {fieldValues[field_names[1]] ? fieldValues[field_names[1]] : "Pick a datetime"}
                         </Text>
                     </TouchableOpacity>
@@ -279,107 +304,113 @@ export default function Complete() {
         return (
             <>
                 <View style={styles.completeRow}>
-                    <View style={[styles.completeSubRowSec, {marginRight: 5}]}>
-                        <TextInput
-                            label="Water Use"
-                            returnKeyType="next"
-                            value={fieldValues[field_names[8]]}
-                            onChangeText={(text) => {
-                                const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
-                                if (validDecimal.test(text)) {
-                                    handleInputChange(text, field_names[8])
-                                }
-                            }}
-                            error={fieldErrors?.[field_names[8]] || false}
-                            errorText={fieldErrors?.[field_names[8]] ? "This field is required" : ""}
-                            autoCapitalize="none"
-                            keyboardType="decimal-pad"
-                        />
-                    </View>
-                    <View style={[styles.completeSubRowSec, {marginLeft: 5}]}>
-                        <TextInput
-                            label="Water Unit"
-                            returnKeyType="next"
-                            value={fieldValues[field_names[9]]}
-                            list={[1, 2, 3]}
-                            onChangeText={(text) => handleInputChange(text, field_names[9])}
-                            error={fieldErrors?.[field_names[9]] || false}
-                            errorText={fieldErrors?.[field_names[9]] ? "This field is required" : ""}
-                            autoCapitalize="none"
-                        />
-                    </View>
+                    <Dropdown
+                        label={"Equipment"}
+                        mode={"outlined"}
+                        value={equipment}
+                        setValue={setEquipment}
+                        list={sprayOptions["equipmentOptions"].map(option => ({
+                            label: option.label,
+                            value: option.id
+                        }))}
+                        errorText={fieldErrors?.[field_names[7]] ? "This field is required" : ""}
+                    />
                 </View>
                 <View style={styles.completeRow}>
-                    <View style={[styles.completeSubRowSec, {marginRight: 5}]}>
-                        <TextInput
-                            label="Equipment"
-                            returnKeyType="next"
-                            value={fieldValues[field_names[7]]}
-                            onChangeText={(text) => handleInputChange(text, field_names[7])}
-                            error={fieldErrors?.[field_names[7]] || false}
-                            errorText={fieldErrors?.[field_names[7]] ? "This field is required" : ""}
-                            autoCapitalize="none"
-                        />
-                    </View>
-                    <View style={[styles.completeSubRowSec, {marginLeft: 5}]}>
-                        <TextInput
-                            label="Temperature"
-                            returnKeyType="next"
-                            value={fieldValues[field_names[10]]}
-                            onChangeText={(text) => {
-                                const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
-                                if (validDecimal.test(text)) {
-                                    handleInputChange(text, field_names[10])
-                                }
-                            }}
-                            error={false}
-                            errorText={""}
-                            endAdornment="°F"
-                            autoCapitalize="none"
-                            keyboardType="decimal-pad"
-                        />
-                    </View>
+                    <TextInput
+                        label="Water Use"
+                        returnKeyType="next"
+                        value={fieldValues[field_names[8]]}
+                        onChangeText={(text) => {
+                            const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
+                            if (validDecimal.test(text)) {
+                                handleInputChange(text, field_names[8])
+                            }
+                        }}
+                        error={fieldErrors?.[field_names[8]] || false}
+                        errorText={fieldErrors?.[field_names[8]] ? "This field is required" : ""}
+                        autoCapitalize="none"
+                        keyboardType="decimal-pad"
+                    />
                 </View>
                 <View style={styles.completeRow}>
-                    <View style={[styles.completeSubRowSec, {marginRight: 5}]}>
-                        <TextInput
-                            label="Wind Speed"
-                            returnKeyType="next"
-                            value={fieldValues[field_names[11]]}
-                            onChangeText={(text) => {
-                                const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
-                                if (validDecimal.test(text)) {
-                                    handleInputChange(text, field_names[11])
-                                }
-                            }}
-                            error={false}
-                            errorText={""}
-                            endAdornment="mph"
-                            autoCapitalize="none"
-                            keyboardType="decimal-pad"
-                        />
-                    </View>
-                    <View style={[styles.completeSubRowSec, {marginLeft: 5}]}>
-                        <TextInput
-                            label="Wind Direction"
-                            returnKeyType="next"
-                            value={fieldValues[field_names[12]]}
-                            onChangeText={(text) => handleInputChange(text, field_names[12])}
-                            error={false}
-                            errorText={""}
-                            autoCapitalize="none"
-                            keyboardType="decimal-pad"
-                        />
-                    </View>
+                    <Dropdown
+                        label={"Water Unit"}
+                        mode={"outlined"}
+                        value={waterUnit}
+                        setValue={setWaterUnit}
+                        list={sprayOptions["chemicalUnitOptions"].map(option => ({
+                            label: option.label,
+                            value: option.id
+                        }))}
+                        errorText={fieldErrors?.[field_names[9]] ? "This field is required" : ""}
+                    />
+                </View>
+                <View style={styles.completeRow}>
+
+                    <TextInput
+                        label="Temperature"
+                        returnKeyType="next"
+                        value={fieldValues[field_names[10]]}
+                        onChangeText={(text) => {
+                            const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
+                            if (validDecimal.test(text)) {
+                                handleInputChange(text, field_names[10])
+                            }
+                        }}
+                        error={false}
+                        errorText={""}
+                        endAdornment="°F"
+                        autoCapitalize="none"
+                        keyboardType="decimal-pad"
+                    />
+                </View>
+                <View style={styles.completeRow}>
+                    <TextInput
+                        label="Wind Speed"
+                        returnKeyType="next"
+                        value={fieldValues[field_names[11]]}
+                        onChangeText={(text) => {
+                            const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
+                            if (validDecimal.test(text)) {
+                                handleInputChange(text, field_names[11])
+                            }
+                        }}
+                        error={false}
+                        errorText={""}
+                        endAdornment="mph"
+                        autoCapitalize="none"
+                        keyboardType="decimal-pad"
+                    />
+                </View>
+                <View style={styles.completeRow}>
+                    <Dropdown
+                        label={"Wind Direction"}
+                        mode={"outlined"}
+                        value={windDirection}
+                        setValue={setWindDirection}
+                        list={windDirections.map(option => ({
+                            label: option.label,
+                            value: option.id
+                        }))}
+                    />
                 </View>
             </>
         )
     }
 
+    const submitButtonRender = () => {
+        return (
+            <View style={styles.completeRow}>
+                <Button loading={loading} mode="contained" onPress={() => handleSubmitButtonClicked()}>
+                    Submit
+                </Button>
+            </View>
+        )
+    }
+
     const initialValues = field_names.reduce((acc, cur) => {
-        if ([field_names[0], field_names[1]].includes(cur)) {
-            acc[cur] = null;
-        } else if (cur === field_names[2]) {
+        if (cur === field_names[2]) {
             acc[cur] = {};
             const uniqueChemicalPurchases = [...new Map(sprayCardContents.map(item => [JSON.stringify(item.chemical_purchase), item.chemical_purchase])).values()]
             for (let i = 0; i < uniqueChemicalPurchases.length; i++) {
@@ -412,17 +443,35 @@ export default function Complete() {
         updateChemicalInfo();
     }, []);
 
+    useEffect(() => {
+        handleInputChange(equipment, field_names[7])
+    }, [equipment]);
+
+    useEffect(() => {
+        handleInputChange(waterUnit, field_names[9])
+    }, [waterUnit]);
+
+    useEffect(() => {
+        handleInputChange(windDirection, field_names[12])
+    }, [windDirection]);
+
     return (
-        <ScrollView
-            contentContainerStyle={styles.container}
-            style={styles.scrollContainer}
-        >
-            <Card style={styles.card}>
-                <Text style={styles.completeHeadTxt}>{sprayCardProcess.scpid}</Text>
-                {datetimeRender()}
-                {chemicalRender()}
-                {otherRender()}
-            </Card>
-        </ScrollView>
+        <PaperProvider>
+            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"}>
+                <ScrollView
+                    contentContainerStyle={styles.container}
+                    style={styles.scrollContainer}
+                >
+                    <Card style={styles.card}>
+                        <Text style={styles.completeHeadTxt}>{sprayCardProcess.scpid}</Text>
+                        {datetimeRender()}
+                        {chemicalRender()}
+                        {otherRender()}
+                        {submitButtonRender()}
+                    </Card>
+                </ScrollView>
+            </KeyboardAvoidingView>
+            <Toast type={toastType} message={toastMessage} onDismiss={() => setToastMessage('')}/>
+        </PaperProvider>
     )
 }

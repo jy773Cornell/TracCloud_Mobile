@@ -13,7 +13,9 @@ export const SprayCardContext = createContext({
     sprayCardContents: [],
     sprayData: {},
     sprayOptions: {},
-    onRefresh : () => {},
+    refreshing: false,
+    onRefresh: () => {
+    },
 });
 
 export default function Details() {
@@ -56,14 +58,14 @@ export default function Details() {
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        Promise.all([fetchProcessData(), fetchContentData(),]).then(() => setRefreshing(false));
-        fetchUserData();
+        Promise.all([fetchProcessData(), fetchContentData(), fetchUserData()]).then(() => setRefreshing(false));
     }, [sprayCardSelected]);
 
     useFocusEffect(onRefresh);
 
     return (
-        <SprayCardContext.Provider value={{sprayCardProcess, sprayCardContents, sprayData, sprayOptions, onRefresh}}>
+        <SprayCardContext.Provider
+            value={{sprayCardProcess, sprayCardContents, sprayData, sprayOptions, refreshing, onRefresh}}>
             <ScrollView
                 contentContainerStyle={styles.container}
                 style={styles.scrollContainer}

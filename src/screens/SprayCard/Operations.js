@@ -13,7 +13,14 @@ export default function Operations() {
     const route = useRoute();
     const {uid,} = route.params;
 
-    const {sprayCardProcess, sprayCardContents, sprayData, sprayOptions, onRefresh} = useContext(SprayCardContext);
+    const {
+        sprayCardProcess,
+        sprayCardContents,
+        sprayData,
+        sprayOptions,
+        refreshing,
+        onRefresh
+    } = useContext(SprayCardContext);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('success');
 
@@ -130,7 +137,7 @@ export default function Operations() {
     };
 
     return (
-        ["completed", "withdrew"].includes(sprayCardProcess?.state) ? null :
+        ["completed", "withdrew"].includes(sprayCardProcess?.state) || refreshing ? null :
             <>
                 <Card style={{...styles.card, marginTop: 0}}>
                     <Text style={styles.detailsHeaderTxt}>Operations</Text>
