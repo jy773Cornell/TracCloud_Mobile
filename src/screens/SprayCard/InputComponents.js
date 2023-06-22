@@ -53,13 +53,6 @@ export function Dropdown({label, value, setValue, errorText, description, list, 
 }
 
 export function PickerModel({label, value, setValue, list, error = false, ...props}) {
-    const [selectedItem, setSelectedItem] = useState(value);
-
-    const onSelected = (item) => {
-        setSelectedItem(item);
-        if (setValue) setValue(item);
-    }
-
     return (
         <PickerModal
             renderSelectView={(disabled, selected, showModal) =>
@@ -70,14 +63,18 @@ export function PickerModel({label, value, setValue, list, error = false, ...pro
                     </Text>
                 </TouchableOpacity>
             }
-            onSelected={onSelected}
+            onSelected={(item) => setValue(item)}
             items={list}
             sortingLanguage={'tr'}
             showToTopButton={true}
-            selected={selectedItem}
+            selected={value}
             showAlphabeticalIndex={true}
             autoGenerateAlphabeticalIndex={true}
             searchPlaceholderText={'Search...'}
+            onClosed={() => {
+            }}
+            onEndReached={() => {
+            }}
             requireSelection={false}
             autoSort={false}
         />
