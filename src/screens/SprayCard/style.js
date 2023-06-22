@@ -51,7 +51,7 @@ export const styles = StyleSheet.create({
     },
     card: {
         width: "95%",
-        padding: 20,
+        padding: 10,
         margin: 20
     },
     detailsHeaderTxt: {
@@ -95,16 +95,37 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
     },
-    inputContainer: {
-        paddingTop: 15
+    completeHeadTxt: {
+        width: "100%",
+        textAlign: "center",
+        color: '#808080',
+        fontStyle: 'italic',
+        fontSize: 12,
+        marginBottom: 10,
     },
-    textInput: {
-        borderColor: '#CCCCCC',
-        borderTopWidth: 1,
-        borderBottomWidth: 1,
-        height: 50,
-        fontSize: 25,
-        paddingLeft: 20,
-        paddingRight: 20
-    }
+    completeRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: 10,
+    },
+    completeSubjectTxt: {
+        fontSize: 15,
+    },
+    completeSubRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    completeSubSubjectTxt: {
+        fontSize: 14,
+        margin: 0
+    },
+    completeSubRowSec: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+
+    },
 });

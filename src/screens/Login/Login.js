@@ -61,9 +61,6 @@ export default function Login() {
                 error={!!username.error}
                 errorText={username.error}
                 autoCapitalize="none"
-                autoCompleteType="email"
-                textContentType="emailAddress"
-                keyboardType="email-address"
             />
             <TextInput
                 label="Password"
