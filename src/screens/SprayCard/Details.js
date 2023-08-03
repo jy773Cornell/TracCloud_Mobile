@@ -7,20 +7,12 @@ import Content from "./Content";
 import Operations from "./Operations";
 import {ScrollView, RefreshControl} from "react-native";
 import {getSprayData, SprayCardContentGet, SprayCardListGet} from "../../api/spraycard-api";
+import {SprayCardContext} from './SprayCardContext';
 
-export const SprayCardContext = createContext({
-    sprayCardProcess: {},
-    sprayCardContents: [],
-    sprayData: {},
-    sprayOptions: {},
-    refreshing: false,
-    onRefresh: () => {
-    },
-});
 
 export default function Details() {
     const route = useRoute();
-    const {uid, sprayCardSelected} = route.params;
+    const {uid, employer_id, sprayCardSelected} = route.params;
 
     const [sprayCardProcess, setSprayCardProcess] = React.useState({});
     const [sprayCardContents, setSprayCardContents] = useState([]);
@@ -48,11 +40,11 @@ export default function Details() {
 
     const fetchUserData = async () => {
         try {
-            const response = await getSprayData(uid);
+            const response = await getSprayData(uid, employer_id);
             setSprayData(response.record_data);
             setSprayOption(response.option_data);
         } catch (error) {
-            console.error("Error fetching data: ", error);
+            console.error("Error fetching data3: ", error);
         }
     }
 

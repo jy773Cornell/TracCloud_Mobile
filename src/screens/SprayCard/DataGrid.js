@@ -12,7 +12,7 @@ import {Button as PaperButton} from "react-native-paper";
 export default function DataGrid() {
     const navigation = useNavigation()
     const route = useRoute();
-    const {uid,} = route.params;
+    const {uid, employer_id} = route.params;
 
     const [sprayCardRecords, setSprayCardRecords] = useState(null)
     const [state, setState] = useState({

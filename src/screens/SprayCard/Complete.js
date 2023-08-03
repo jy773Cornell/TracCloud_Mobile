@@ -12,11 +12,11 @@ import {TextInput, PickerModel} from "./InputComponents";
 import Toast from "../../components/Toast";
 import Button from './Button'
 import {theme} from "../../core/theme";
+import dayjs from "dayjs";
 
 const field_names = [
     "start_time", "finish_time",
-    "total_amount", "amount_unit", "total_cost", "application_rate", "rate_unit",
-    "equipment", "water_use", "water_unit",
+    "equipment", "amount_pesticide_per_tank",
     "average_temp", "wind_speed", "wind_direction",
 ]
 
@@ -46,8 +46,6 @@ export default function Complete() {
 
     const [cropSiteInfo, setCropSiteInfo] = useState({});
     const [chemicalInfo, setChemicalInfo] = React.useState([]);
-    const [totalSiteSize, setTotalSiteSize] = useState(0);
-    const [waterUnit, setWaterUnit] = useState("");
     const [equipment, setEquipment] = useState("");
     const [windDirection, setWindDirection] = useState("");
 
@@ -60,22 +58,9 @@ export default function Complete() {
             fieldObj = value;
         }
 
-        if (field === field_names[2]) {
-            setFieldValues(prevValues => ({
-                ...prevValues, [field]: fieldObj, [field_names[4]]: {
-                    ...prevValues[field_names[4]],
-                    [index]: (Number(chemicalInfo[index].cost) * Number(value)).toFixed(2),
-                }, [field_names[5]]: {
-                    ...prevValues[field_names[5]],
-                    [index]: (Number(value) / totalSiteSize).toFixed(2),
-                },
-            }));
-        } else {
-            setFieldValues(prevValues => ({
-                ...prevValues, [field]: fieldObj
-            }));
-        }
-
+        setFieldValues(prevValues => ({
+            ...prevValues, [field]: fieldObj
+        }));
     };
 
     const updateCorpSiteInfo = () => {
@@ -99,15 +84,6 @@ export default function Complete() {
         setChemicalInfo(uniqueChemicalPurchases);
     };
 
-    const updateTotalSiteSize = () => {
-        const uniqueSize = [...new Map(sprayCardContents.map(item => [JSON.stringify(item.site), item.site])).values()]
-        let totalSize = 0;
-        uniqueSize.map(item => {
-            totalSize += item.size;
-        })
-        setTotalSiteSize(totalSize);
-    };
-
     const reformatSubmitData = () => {
         const chemicalList = [...new Map(sprayCardContents.map(item => [JSON.stringify(item.chemical_purchase), item.chemical_purchase])).values()]
 
@@ -115,27 +91,17 @@ export default function Complete() {
         for (let i = 0; i < sprayCardContents.length; i++) {
             const record = sprayCardContents[i];
             const chemical_idx = chemicalList.map(JSON.stringify).indexOf(JSON.stringify(record.chemical_purchase));
-            const total_amount = (Number(fieldValues[field_names[5]][chemical_idx]) * Number(record.site.size)).toFixed(2).toString();
-            const total_cost = (Number(fieldValues[field_names[5]][chemical_idx]) * Number(record.site.size) * Number(record.chemical_purchase.cost)).toFixed(2).toString();
-            const water_use = ((Number(fieldValues[field_names[8]]) / totalSiteSize) * Number(record.site.size)).toFixed(2).toString();
 
             const recordData = {
-                "operator_id": uid,
-                "start_time": fieldValues[field_names[0]],
-                "finish_time": fieldValues[field_names[1]],
-                "total_amount": total_amount,
-                "amount_unit_id": sprayOptions["chemicalUnitOptions"].find(item => item.label === chemicalList[chemical_idx].unit).id,
-                "total_cost": total_cost,
-                "application_rate": fieldValues[field_names[5]][chemical_idx],
-                "rate_unit_id": sprayOptions["chemicalUnitOptions"].find(item => item.label === chemicalList[chemical_idx].unit).id,
-                "applied_area": record.site.size,
-                "area_unit_id": sprayOptions["siteUnitOptions"].find(item => item.label === record.site.size_unit).id,
-                "equipment": fieldValues[field_names[7]],
-                "water_use": water_use,
-                "water_unit_id": fieldValues[field_names[9]],
-                "average_temp": fieldValues[field_names[10]],
-                "wind_speed": fieldValues[field_names[11]],
-                "wind_direction": fieldValues[field_names[12]],
+                "applicator_id": uid,
+                "start_datetime": fieldValues[field_names[0]],
+                "finish_datetime": fieldValues[field_names[1]],
+                "harvestable_date": addDaysToDate(fieldValues[field_names[1]], chemicalList[chemical_idx].phi),
+                "equipment_id": fieldValues[field_names[2]],
+                "amount_pesticide_per_tank": fieldValues[field_names[3]][chemical_idx],
+                "average_temp": fieldValues[field_names[4]],
+                "wind_speed": fieldValues[field_names[5]],
+                "wind_direction": fieldValues[field_names[6]],
             }
 
             submitData["data"][record.arid] = (recordData);
@@ -144,39 +110,54 @@ export default function Complete() {
         return submitData
     }
 
+    const addDaysToDate = (dateString, daysString) => {
+        const initialDate = new Date(dateString);
+        const days = parseFloat(daysString);
+        let newDate;
+
+        if (days === 0) {
+            newDate = new Date(initialDate.getTime());
+        } else {
+            const millisecondsToAdd = (days + 1) * 24 * 60 * 60 * 1000;
+            newDate = new Date(initialDate.getTime() + millisecondsToAdd);
+        }
+
+        return newDate.toISOString().slice(0, 10);
+    }
+
     const checkFields = () => {
         let valid = true;
         setFieldErrors(initialFieldErrors);
-        const checkFieldNames = [field_names[0], field_names[1], field_names[2], field_names[7], field_names[8], field_names[9]];
+        const checkFieldNames = [field_names[0], field_names[1], field_names[2],];
 
         checkFieldNames.map(field => {
-            if (field === field_names[2]) {
-                Object.keys(fieldValues[field]).map(index => {
-                    if (!fieldValues[field][index]) {
-                        setFieldErrors(prevValues => ({
-                            ...prevValues,
-                            [field]: {
-                                ...prevValues[field],
-                                [index]: true
-                            }
-                        }));
-                        valid = false;
-                    }
-                })
-            } else {
-                if (!fieldValues[field]) {
-                    setFieldErrors(prevValues => ({
-                        ...prevValues, [field]: true
-                    }));
-                    valid = false;
-                }
+            if (!fieldValues[field]) {
+                setFieldErrors(prevValues => ({
+                    ...prevValues, [field]: true
+                }));
+                valid = false;
             }
         })
 
         return valid;
     };
 
+    const checkDateFields = () => {
+        return (dayjs(fieldValues[field_names[1]]).isAfter(dayjs(fieldValues[field_names[0]])));
+    }
+
     const handleSubmitButtonClicked = async () => {
+        if (!checkDateFields()) {
+            setToastMessage("Finish time must be later than start time.");
+            setToastType('error');
+            setFieldErrors(prevValues => ({
+                ...prevValues,
+                [field_names[0]]: true,
+                [field_names[1]]: true,
+            }));
+            return;
+        }
+
         if (checkFields()) {
             try {
                 setLoading(true);
@@ -254,6 +235,24 @@ export default function Complete() {
         )
     }
 
+    const equipmentRender = () => {
+        return (
+            <View style={styles.completeRow}>
+                <Text style={[styles.completeSubjectTxt, {fontWeight: 'bold'}]}>Equipment: </Text>
+                <PickerModel
+                    label={"Choose equipment"}
+                    value={equipment}
+                    setValue={setEquipment}
+                    list={sprayOptions["equipmentOptions"].map(option => ({
+                        Name: option.label,
+                        Id: option.id
+                    }))}
+                    error={fieldErrors?.[field_names[2]]}
+                />
+            </View>
+        )
+    }
+
     const chemicalRender = () => {
         return (
             <>
@@ -261,37 +260,18 @@ export default function Complete() {
                     <React.Fragment key={index}>
                         <View style={styles.completeRow}>
                             <TextInput
-                                label={"Amount for " + chemicalInfo[index].label.split(" | ")[1] + " (" + chemicalInfo[index].label.split(" | ")[0] + ")"}
+                                label={"Amount Per Tank for " + chemicalInfo[index].label.split(" | ")[1]}
                                 returnKeyType="done"
-                                value={fieldValues[field_names[2]][index]}
                                 onChangeText={(text) => {
                                     const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
                                     if (validDecimal.test(text)) {
-                                        handleInputChange(text, field_names[2], index)
+                                        handleInputChange(text, field_names[3], index)
                                     }
                                 }}
-                                errorText={fieldErrors?.[field_names[2]]?.[index] ? "This field is required" : ""}
                                 endAdornment={chemicalInfo[index].unit}
                                 autoCapitalize="none"
                                 keyboardType="decimal-pad"
                             />
-                        </View>
-                        <View style={styles.completeSubRow}>
-                            <View style={styles.completeSubRowSec}>
-                                <Text style={styles.completeSubSubjectTxt}>Cost: $ </Text>
-                                <Text style={[styles.completeSubSubjectTxt, {color: '#007BFF',}]}>
-                                    {fieldValues[field_names[4]]?.[index] || 0}
-                                </Text>
-                            </View>
-                            <View style={styles.completeSubRowSec}>
-                                <Text style={styles.completeSubSubjectTxt}>Rate: </Text>
-                                <Text style={[styles.completeSubSubjectTxt, {color: '#007BFF',}]}>
-                                    {fieldValues[field_names[5]]?.[index] || 0}
-                                </Text>
-                                <Text style={styles.completeSubSubjectTxt}>
-                                    {" " + chemicalInfo[index].unit} / {(Object.values(cropSiteInfo)[0])[0].size_unit}
-                                </Text>
-                            </View>
                         </View>
                     </React.Fragment>
                 ))}
@@ -303,53 +283,11 @@ export default function Complete() {
         return (
             <>
                 <View style={styles.completeRow}>
-                    <Text style={[styles.completeSubjectTxt, {fontWeight: 'bold'}]}>Equipment: </Text>
-                    <PickerModel
-                        label={"Choose equipment"}
-                        value={equipment}
-                        setValue={setEquipment}
-                        list={sprayOptions["equipmentOptions"].map(option => ({
-                            Name: option.label,
-                            Id: option.id
-                        }))}
-                        error={fieldErrors?.[field_names[7]]}
-                    />
-                </View>
-                <View style={styles.completeRow}>
-                    <TextInput
-                        label="Water Use"
-                        returnKeyType="done"
-                        value={fieldValues[field_names[8]]}
-                        onChangeText={(text) => {
-                            const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
-                            if (validDecimal.test(text)) {
-                                handleInputChange(text, field_names[8])
-                            }
-                        }}
-                        errorText={fieldErrors?.[field_names[8]] ? "This field is required" : ""}
-                        autoCapitalize="none"
-                        keyboardType="decimal-pad"
-                    />
-                </View>
-                <View style={styles.completeRow}>
-                    <Text style={[styles.completeSubjectTxt, {fontWeight: 'bold'}]}>Water Unit: </Text>
-                    <PickerModel
-                        label={"Choose a unit"}
-                        value={waterUnit}
-                        setValue={setWaterUnit}
-                        list={sprayOptions["chemicalUnitOptions"].map(option => ({
-                            Name: option.label,
-                            Id: option.id
-                        }))}
-                        error={fieldErrors?.[field_names[9]]}
-                    />
-                </View>
-                <View style={styles.completeRow}>
 
                     <TextInput
                         label="Temperature"
                         returnKeyType="done"
-                        value={fieldValues[field_names[10]]}
+                        value={fieldValues[field_names[4]]}
                         onChangeText={(text) => {
                             const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
                             if (validDecimal.test(text)) {
@@ -366,7 +304,7 @@ export default function Complete() {
                     <TextInput
                         label="Wind Speed"
                         returnKeyType="done"
-                        value={fieldValues[field_names[11]]}
+                        value={fieldValues[field_names[5]]}
                         onChangeText={(text) => {
                             const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
                             if (validDecimal.test(text)) {
@@ -406,7 +344,9 @@ export default function Complete() {
     }
 
     const initialValues = field_names.reduce((acc, cur) => {
-        if (cur === field_names[2]) {
+        if ([field_names[0], field_names[1]].includes(cur)) {
+            acc[cur] = dayjs().format('YYYY-MM-DD HH:mm');
+        } else if (cur === field_names[3]) {
             acc[cur] = {};
             const uniqueChemicalPurchases = [...new Map(sprayCardContents.map(item => [JSON.stringify(item.chemical_purchase), item.chemical_purchase])).values()]
             for (let i = 0; i < uniqueChemicalPurchases.length; i++) {
@@ -419,15 +359,7 @@ export default function Complete() {
     }, {});
 
     const initialFieldErrors = field_names.reduce((acc, cur) => {
-        if (cur === field_names[2]) {
-            acc[cur] = {};
-            const uniqueChemicalPurchases = [...new Map(sprayCardContents.map(item => [JSON.stringify(item.chemical_purchase), item.chemical_purchase])).values()]
-            for (let i = 0; i < uniqueChemicalPurchases.length; i++) {
-                acc[cur][i] = false;
-            }
-        } else {
-            acc[cur] = false;
-        }
+        acc[cur] = false;
         return acc;
     }, {});
 
@@ -435,20 +367,15 @@ export default function Complete() {
         setFieldValues(initialValues);
         setFieldErrors(initialFieldErrors);
         updateCorpSiteInfo();
-        updateTotalSiteSize();
         updateChemicalInfo();
     }, []);
 
     useEffect(() => {
-        handleInputChange(equipment?.Id ? equipment.Id : "", field_names[7])
+        handleInputChange(equipment?.Id ? equipment.Id : "", field_names[2])
     }, [equipment]);
 
     useEffect(() => {
-        handleInputChange(waterUnit?.Id ? waterUnit.Id : "", field_names[9])
-    }, [waterUnit]);
-
-    useEffect(() => {
-        handleInputChange(windDirection?.Id ? windDirection.Id : "", field_names[12])
+        handleInputChange(windDirection?.Id ? windDirection.Id : "", field_names[6])
     }, [windDirection]);
 
     return (
@@ -461,6 +388,7 @@ export default function Complete() {
                     <Card style={styles.card}>
                         <Text style={styles.completeHeadTxt}>{sprayCardProcess.scpid}</Text>
                         {datetimeRender()}
+                        {equipmentRender()}
                         {chemicalRender()}
                         {otherRender()}
                         {submitButtonRender()}

@@ -11,6 +11,7 @@ import {usernameValidator} from "../../utils/usernameValidator";
 import Toast from '../../components/Toast'
 import {styles} from "./style";
 import {loginUser} from "../../api/auth-api";
+import {employerGet} from "../../api/auth-api";
 import {useNavigation, useRoute} from '@react-navigation/native';
 
 export default function Login() {
@@ -43,7 +44,12 @@ export default function Login() {
                 setError(response.error)
             }
         } else {
-            navigation.navigate('SprayCard', {uid: response.uid,})
+            const employer = await employerGet(response.uid)
+            if (employer.error) {
+                setError(employer.error)
+            } else {
+                navigation.navigate('SprayCard', {uid: response.uid, employer_id: employer.employer_id})
+            }
         }
 
         setLoading(false)

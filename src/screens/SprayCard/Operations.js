@@ -6,7 +6,7 @@ import {styles} from "./style";
 import {SprayCardReturn, SprayCardWithdraw} from "../../api/spraycard-api";
 import Toast from "../../components/Toast";
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {SprayCardContext} from "./Details";
+import {SprayCardContext} from "./SprayCardContext";
 
 export default function Operations() {
     const navigation = useNavigation();

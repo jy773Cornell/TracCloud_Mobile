@@ -2,25 +2,28 @@ import {getCSRFToken} from "./auth-api";
 
 const root = "https://tracloud.azurewebsites.net"
 
-export const getSprayData = async (uid) => {
+const end_site_types = ["Row", "Hole Code#", "Section", "Block"]
+
+export const getSprayData = async (uid, employerID) => {
     const requestOptions = {
         method: "GET",
         headers: {'Accept': 'application/json', "Content-Type": "application/json",},
     };
 
     const responses = await Promise.all([
-        fetch(root + "/api/crop/list/get/" + "?uid=" + uid, requestOptions),
-        fetch(root + "/api/site/list/get/" + "?uid=" + uid, requestOptions),
-        fetch(root + "/api/chemical/list/get/" + "?uid=" + uid, requestOptions),
-        fetch(root + "/api/equipment/list/get/" + "?uid=" + uid, requestOptions),
-        fetch(root + "/api/operation/purchase/list/get/" + "?uid=" + uid, requestOptions),
-        fetch(root + "/api/operation/application/list/get/?" + "uid=" + uid, requestOptions),
+        fetch(root + "/api/crop/list/get/" + "?uid=" + employerID, requestOptions),
+        fetch(root + "/api/site/list/get/" + "?uid=" + employerID, requestOptions),
+        fetch(root + "/api/chemical/list/get/" + "?uid=" + employerID, requestOptions),
+        fetch(root + "/api/equipment/list/get/" + "?uid=" + employerID, requestOptions),
+        fetch(root + "/api/operation/purchase/list/get/" + "?uid=" + employerID, requestOptions),
+        fetch(root + "/api/operation/application/list/get/?" + "uid=" + employerID, requestOptions),
         fetch(root + "/api/crop/category/", requestOptions),
         fetch(root + "/api/operation/application/target/", requestOptions),
         fetch(root + "/api/operation/application/desicisionsupport/", requestOptions),
         fetch(root + "/api/unit/", requestOptions),
+        fetch(root + "/api/crop/growthstage/", requestOptions),
 
-        fetch(root + "/workflow/usertree/subtree/get/?" + "uid=" + uid, requestOptions),
+        fetch(root + "/workflow/spraycard/assignees/get/?" + "uid=" + uid + "&employer_id=" + employerID, requestOptions),
     ]);
 
     const jsonDataPromises = responses.map((response) => {
@@ -47,8 +50,6 @@ export const getSprayData = async (uid) => {
         return result;
     }
 
-    const end_site_types = ["Row", "Hole Code#", "Section", "Block"]
-
     return {
         "record_data": {
             cropList: jsonData[0].data,
@@ -61,14 +62,15 @@ export const getSprayData = async (uid) => {
             applicationTarget: jsonData[7].data,
             decisionSupport: jsonData[8].data,
             unit: jsonData[9].data,
-            userSubTree: jsonData[10].data,
-        },
-        "option_data": {
+            growthStage: jsonData[10].data,
+            assigneeList: jsonData[11].data,
+        }, "option_data": {
             chemicalOptions: jsonData[4].data.map(item => {
                 const chemical = jsonData[2].data.find(chem => chem.chemid === item.chemical);
                 return {
-                    label: `${chemical.epa_reg_no}  |  ${chemical.trade_name}  |  ${chemical.active_ingredient}  |  ${chemical.rei}  |  ${chemical.phi}  |  \$${item.cost_per_unit} per ${chemical.unit}  | ${item.pur_datetime}`,
+                    label: `${chemical.epa_reg_no} | ${chemical.trade_name} | \$${item.cost_per_unit} per ${chemical.unit} | ${item.pur_datetime}`,
                     unit: chemical.unit,
+                    cost: item.cost_per_unit,
                     cost_per_unit: `\$${item.cost_per_unit} per ${chemical.unit}`,
                     id: item.prid,
                 };
@@ -77,8 +79,10 @@ export const getSprayData = async (uid) => {
                 label: item.name, id: item.dsid
             })),
             cropOptions: jsonData[0].data.map(item => ({
-                label: `${item.crop} (${item.variety}, ${item.growth_stage})`,
-                id: item.cid
+                label: `${item.crop} (${item.variety})`, id: item.cid
+            })),
+            growthStageOptions: jsonData[10].data.map(item => ({
+                label: `${item.name}`, crop_id: item.crop_id, id: item.cgsid
             })),
             targetOptions: jsonData[7].data.map(item => ({
                 label: item.name, id: item.attid,
@@ -88,23 +92,28 @@ export const getSprayData = async (uid) => {
                 let optionStr = site.name;
                 const sid = site.sid;
                 const cid = site.crop.cid;
-                const crop = `${site.crop.crop} (${site.crop.variety}, ${site.crop.growth_stage})`
+                const ccid = site.crop.ccid;
+                const crop = `${site.crop.crop} (${site.crop.variety})`;
+                const area = site.size;
+                const unit = site.size_unit;
                 while (site.parent) {
                     site = flatten(jsonData[1].data).find(item => item.sid === site.parent)
                     optionStr = `${site.name} - ${optionStr}`;
                 }
-                return {id: sid, label: optionStr, cid: cid, crop: crop};
+                return {id: sid, label: optionStr, cid: cid, ccid: ccid, crop: crop, area: area, unit: unit};
             }),
             equipmentOptions: jsonData[3].data.map(item => ({
-                label: `${item.name} (${item.owner}, ${item.code})`,
-                id: item.eid
+                label: `${item.name}`, id: item.eid
             })),
             chemicalUnitOptions: jsonData[9].data.filter(item => item.usage === "chemical").map(item => ({
                 label: item.name, id: item.unitid
             })),
             siteUnitOptions: jsonData[9].data.filter(item => item.usage === "site").map(item => ({
                 label: item.name, id: item.unitid
-            }))
+            })),
+            assigneeOptions: jsonData[11].data.map(item => ({
+                label: `${item.user} (${item.first_name} ${item.last_name})`, type: item.type, id: item.uid
+            })),
         }
     };
 }
@@ -123,7 +132,7 @@ export const SprayCardListGet = async (uid) => {
                 throw new Error('Response not OK.');
             }
         })
-        .then((data) => data.data); // use another then to get the data
+        .then((data) => data.data);
 }
 
 export const SprayCardContentGet = async (scpid) => {
@@ -217,6 +226,7 @@ export const SprayCardComplete = async (apiData) => {
             if (response.ok) {
                 return true;
             } else {
+                console.log(response);
                 throw new Error('Response not OK.');
             }
         })

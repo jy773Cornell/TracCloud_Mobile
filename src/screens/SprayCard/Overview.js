@@ -2,7 +2,7 @@ import React, {useContext, useEffect} from 'react';
 import {Text, View} from 'react-native';
 import {Card} from 'react-native-shadow-cards';
 import {styles} from "./style";
-import {SprayCardContext} from "./Details";
+import {SprayCardContext} from "./SprayCardContext";
 
 export default function Overview() {
     const {sprayCardProcess} = useContext(SprayCardContext);

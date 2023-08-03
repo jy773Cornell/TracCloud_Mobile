@@ -77,7 +77,6 @@ export const styles = StyleSheet.create({
         marginTop: 10,
     },
     detailsRowTxt: {
-        textAlign: "center",
         fontSize: 15,
     },
     overviewRowSec: {

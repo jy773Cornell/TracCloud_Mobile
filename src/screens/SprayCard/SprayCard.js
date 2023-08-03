@@ -9,13 +9,13 @@ const Stack = createStackNavigator();
 
 export default function SprayCard() {
     const route = useRoute();
-    const {uid,} = route.params;
+    const {uid, employer_id} = route.params;
 
     return (
         <Stack.Navigator initialRouteName="DataGrid">
-            <Stack.Screen name="Spray Card Process" component={DataGrid} initialParams={{uid,}}/>
-            <Stack.Screen name="Process Details" component={Details} initialParams={{uid,}}/>
-            <Stack.Screen name="Complete Process" component={Complete} initialParams={{uid,}}/>
+            <Stack.Screen name="Spray Card Process" component={DataGrid} initialParams={{uid, employer_id}}/>
+            <Stack.Screen name="Process Details" component={Details} initialParams={{uid, employer_id}}/>
+            <Stack.Screen name="Complete Process" component={Complete} initialParams={{uid, employer_id}}/>
         </Stack.Navigator>
     );
 }

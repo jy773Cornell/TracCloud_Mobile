@@ -1,3 +1,5 @@
+const root = "https://tracloud.azurewebsites.net"
+
 export const getCSRFToken = async () => {
     const requestOptions = {
         method: "GET", headers: {
@@ -63,5 +65,22 @@ export const loginUser = async ({username, password}) => {
             error: error.message,
         }
     }
+}
+
+export const employerGet = async (uid) => {
+    const requestOptions = {
+        method: "GET",
+        headers: {'Accept': 'application/json', "Content-Type": "application/json",},
+    };
+
+    return fetch(root + "/user_manage/employer/get/" + "?uid=" + uid, requestOptions)
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Response not OK.');
+            }
+        })
+        .then((data) => data);
 }
 
