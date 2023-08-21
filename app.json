@@ -4,6 +4,7 @@
     "slug": "TracCloud",
     "version": "1.0.0",
     "orientation": "portrait",
+    "privacy": "public",
     "icon": "./src/assets/favicon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -25,6 +26,17 @@
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e1ce6a59-5f0e-446d-b468-c2f5fce5fa4a"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e1ce6a59-5f0e-446d-b468-c2f5fce5fa4a"
     }
   }
 }

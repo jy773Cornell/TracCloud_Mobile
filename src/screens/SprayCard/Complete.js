@@ -291,7 +291,7 @@ export default function Complete() {
                         onChangeText={(text) => {
                             const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
                             if (validDecimal.test(text)) {
-                                handleInputChange(text, field_names[10])
+                                handleInputChange(text, field_names[4])
                             }
                         }}
                         errorText={""}
@@ -308,7 +308,7 @@ export default function Complete() {
                         onChangeText={(text) => {
                             const validDecimal = /^[0-9]*[.,]?[0-9]*$/;
                             if (validDecimal.test(text)) {
-                                handleInputChange(text, field_names[11])
+                                handleInputChange(text, field_names[5])
                             }
                         }}
                         errorText={""}
