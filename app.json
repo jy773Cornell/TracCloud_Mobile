@@ -16,13 +16,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "cornell.cair.tracloud"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/favicon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "cornell.cair.tracloud"
     },
     "web": {
       "favicon": "./src/assets/favicon.png"
